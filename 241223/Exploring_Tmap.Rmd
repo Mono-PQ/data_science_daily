@@ -1,0 +1,74 @@
+---
+title: "Exploring Tmap"
+output: html_document
+date: "2024-12-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Exploration of Tmap library for Geographical Visualisation
+
+Created a map of the world using the function `tm_shape()`. Layers can be added with `+` operator, in this case `tm_polygons()` is used.
+
+```{r}
+library(tmap)
+data("World")
+
+tmap_mode("plot")
+
+tm_shape(World) + 
+  tm_polygons("HPI")
+```
+
+Each map can be plotted as a static image or viewed interactively using `plot` or `view` modes respectively. Mode can be set with function `tmap_mode()` and toggling between the modes can be done with `switch ttm()` which stands for toggle thematic map. 
+
+```{r}
+tmap_mode("view")
+
+tm_shape(World) + 
+  tm_polygons(c("HPI", "economy")) + 
+  tm_facets(sync=TRUE, ncol=2)
+```
+
+```{r}
+tmap_mode("plot")
+
+data("NLD_muni")
+NLD_muni$perc_men = NLD_muni$pop_men / NLD_muni$population * 100 
+
+tm_shape(NLD_muni) + 
+  tm_polygons("perc_men", palette="RdYlBu") + 
+  tm_facets(by="province")
+```
+
+```{r}
+library(tmap)
+library(sf)
+
+shpfile_path = "~/Sync/data_science_daily/data/LTARoadCameraSHP/LTA_Road_Enforcement_Camera.shp"
+enforcement_camera = st_read(shpfile_path)
+
+tmap_mode("view")
+tm_shape(enforcement_camera) + 
+  tm_symbols(size=0.01, col="red") + 
+  tm_basemap("OpenStreetMap")
+```
+
+```{r}
+eld_boundary = st_read("~/Sync/data_science_daily/data/ElectoralBoundaryDataset.kml")
+
+tmap_mode("view")
+tmap_options(check.and.fix = TRUE)
+
+tm_shape(eld_boundary) + 
+  tm_fill(col="Name", alpha=0.3, palette = "Set3", legend.show=FALSE) +
+  tm_borders() +
+  tm_shape(enforcement_camera) + 
+  tm_symbols(size=0.01, col='red') +
+  tm_basemap("OpenStreetMap")
+```
+
+
+
